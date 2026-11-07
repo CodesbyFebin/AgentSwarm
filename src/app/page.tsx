@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Boxes, LayoutDashboard, Lock, Wand2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SwarmHeader from "@/components/SwarmHeader";
@@ -59,9 +59,6 @@ export default function SwarmControlDashboard() {
   const [tab, setTab] = useState<TabKey>("control");
   const [booted, setBooted] = useState(false);
 
-  const agentsRef = useRef<AgentCard[]>([]);
-  agentsRef.current = agents;
-
   /* ---------- Initial bootstrap ---------- */
   useEffect(() => {
     (async () => {
@@ -94,11 +91,9 @@ export default function SwarmControlDashboard() {
 
   /* ---------- Ambient real-time ticker (LISTEN/NOTIFY sim) ---------- */
   useEffect(() => {
-    if (!booted || agentsRef.current.length === 0) return;
+    if (!booted || agents.length === 0) return;
     const tick = () => {
-      const pool = agentsRef.current;
-      if (pool.length === 0) return;
-      const dest = pool[Math.floor(Math.random() * pool.length)];
+      const dest = agents[Math.floor(Math.random() * agents.length)];
       const src = AMBIENT_SOURCES[Math.floor(Math.random() * AMBIENT_SOURCES.length)];
       const ev = AMBIENT_EVENTS[Math.floor(Math.random() * AMBIENT_EVENTS.length)];
       setEvents((prev) =>
@@ -116,7 +111,7 @@ export default function SwarmControlDashboard() {
     };
     const handle = setInterval(tick, 7000);
     return () => clearInterval(handle);
-  }, [booted]);
+  }, [agents, booted]);
 
   /* ---------- Derived stats ---------- */
   const stats = useMemo(() => {

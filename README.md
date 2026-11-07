@@ -107,10 +107,11 @@ All commands below are read from the project manifest — no invented tooling:
 
 | Script | Command |
 | --- | --- |
-| `dev` | `next dev -p 3000 2>&1 \| tee dev.log` |
+| `dev` | `next dev -p 3000` |
 | `build` | `next build && cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/` |
-| `start` | `NODE_ENV=production bun .next/standalone/server.js 2>&1 \| tee server.log` |
+| `start` | `node .next/standalone/server.js` |
 | `lint` | `eslint .` |
+| `postinstall` | `prisma generate` |
 | `db:push` | `prisma db push --accept-data-loss` |
 | `db:generate` | `prisma generate` |
 | `db:migrate` | `prisma migrate dev` |
@@ -139,6 +140,13 @@ bun run dev
 ```
 
 Open http://localhost:3000 for the original demo or http://localhost:3000/dashboard for capability discovery and the signed 2035 gateway playground. Set `SWARM_SERVICE_ORIGIN` to the exact serving origin to validate signed gateway requests; execution remains blocked until a real proof verifier and admission controls are integrated. To build and run the standalone server:
+```sh
+npm run build
+npm start
+```
+
+If Bun is unavailable, run `npm install` and `npm run dev`. Installation generates the Prisma client.
+
 ### Troubleshooting matrix
 
 Errors people actually hit, mapped to causes and fixes:
@@ -181,7 +189,7 @@ AgentSwarm/
 
 ## Testing & Continuous Integration
 
-The repository ships a test suite. Run it before every contribution:
+Run `npm run lint` and `node --test tests/sovereign/crypto2035.test.mjs` on Node 24. The [2a Edition guide](docs/2a-edition.md) documents the PostgreSQL invariant checks.
 
 _MISSING: no CI workflows detected. Adding `.github/workflows/ci.yml` (install → lint → test → build) would give every commit an automated safety net._
 

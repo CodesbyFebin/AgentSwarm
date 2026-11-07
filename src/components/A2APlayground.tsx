@@ -40,9 +40,13 @@ export default function A2APlayground({ selectedAgent, onLogTransaction, onEmitE
   const [lastSignature, setLastSignature] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
-  // Boot the secure enclave on mount
+  // Initialize the demo signing key in the browser after hydration.
   useEffect(() => {
-    setKeypair(generateKeypair());
+    let active = true;
+    queueMicrotask(() => {
+      if (active) setKeypair(generateKeypair());
+    });
+    return () => { active = false; };
   }, []);
 
   const pubkeyFingerprint = useMemo(() => {
