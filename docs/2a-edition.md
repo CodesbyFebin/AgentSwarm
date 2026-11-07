@@ -34,3 +34,33 @@ The dashboard is one client of the API, not a source of authority. Agents discov
 For the sovereign API, bind an agent ID to a proven wallet signing key through a challenge-response registration flow. An address string alone is insufficient. Key type and chain encoding must be explicit; Ed25519 support does not imply support for every wallet. Sign a domain-separated envelope containing the intended service origin, API version, agent ID, method, path, body commitment, nonce, expiry, and budget ceiling. Persist nonce consumption with the task transaction. Resolve account and capability policy from the verified registry, never an untrusted body field. Document key rotation, revocation, delegation, and recovery before production use.
 
 Every callable service needs discoverable input/output schemas, authentication and signature rules, prices in exact units, idempotency behavior, error codes, and implementation status. Completion receipts and task/event polling must be usable without a browser. Hardware-backed keys and cryptographic execution receipts remain separate trust guarantees; neither is established by a successful UI interaction.
+
+
+## Uploaded 2035 blueprint: implementation decisions
+
+The two uploaded plans are byte-identical. Their product goals are retained, with the following implementation corrections:
+
+| Blueprint item | Current decision |
+| --- | --- |
+| Hash a seed to simulate a signature | Use real WebCrypto Ed25519 signing and public-key verification; no shared hardcoded seed |
+| Canonical serialization | Sort plain JSON keys recursively; reject unsupported values and cyclic data; this local profile is not advertised as RFC 8785 |
+| Execute2035 gateway | Verify a signed envelope bound to configured origin, method, path, nonce, timestamps, and payload hash; return 501 until real receipt verification and admission controls exist |
+| Timestamp replay protection | Expiry limits age; PostgreSQL nonce consumption is still required for any state-changing endpoint |
+| Browser budget override | Never authoritative; reservations and operator-approved policies belong on the server |
+| STARK receipt string/base64 placeholder | Never accepted as a proof; no successful STARK completion response is emitted |
+| LISTEN/NOTIFY | Broadcast only a durable event ID after insertion; reconnecting consumers must reread stored events |
+| Organization/project/mission hierarchy and DAG | Planned; not yet present in the task repository |
+| Client witness delegation | Research requirement, not an implemented privacy guarantee |
+| Sub-500ms proving and O(1) verification | Benchmark hypotheses, not established performance claims |
+
+The signing key is non-extractable through WebCrypto's export API. This does not establish a hardware enclave or protect against malicious code using the key in the same browser context. The signed nonce is only data until admission consumes it transactionally; the new gateway deliberately performs no admission, execution, or accounting writes.
+
+`SWARM_SERVICE_ORIGIN` must be the exact trusted service origin (for example `https://agentswarm.in`); it is not derived from inbound Host headers. The request body is the complete signed envelope returned by `signTaskPayload`, rather than the blueprint's four unauthenticated headers. Configure the real verifier with pinned program identity and public-input bindings before allowing completion. Witness compression alone does not conceal private inputs from a delegated prover; the chosen prover protocol must establish that property separately.
+
+Run the dependency-free signing checks on Node 24:
+
+```sh
+node --test tests/sovereign/crypto2035.test.mjs
+```
+
+These cover canonical data validation, valid Ed25519 signatures, tampering, service binding, expiry, and the explicit absence of nonce consumption. Browser compatibility, Next.js route integration, PostgreSQL invariants, concurrent leasing, and proving performance still need environment-backed tests. Notifications are hints rather than an ordered stream: sequence IDs may be allocated before another transaction commits. Consumers must account for commit-order gaps instead of advancing an irreversible cursor from notifications alone.

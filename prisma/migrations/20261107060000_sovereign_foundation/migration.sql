@@ -117,3 +117,13 @@ BEGIN
     VALUES(task.id,task.identity,'RELEASE',task.fee_micro_usdc);
   INSERT INTO swarm_events(task_id,kind) VALUES(task.id,'TASK_CANCELLED');
 END $$;
+
+-- Notifications are wake-up hints; consumers must read durable rows after commit.
+-- Keep payload below PostgreSQL limits and avoid broadcasting private event data.
+CREATE FUNCTION swarm_notify_event() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  PERFORM pg_notify('swarm_events', json_build_object('event_id', NEW.id)::text);
+  RETURN NEW;
+END $$;
+CREATE TRIGGER swarm_event_notification AFTER INSERT ON swarm_events
+  FOR EACH ROW EXECUTE FUNCTION swarm_notify_event();

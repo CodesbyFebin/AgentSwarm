@@ -17,6 +17,7 @@ export async function GET() {
       nonce_replay_prevention: false,
     },
     capabilities: [
+      { id: 'execution2035', method: 'POST', path: '/api/swarm/execute2035', status: 'blocked', authentication: 'Ed25519-signed-envelope-v1', execution_accepted: false, proof_verifier_available: false },
       { id: 'agents.list', method: 'GET', path: '/api/swarm/agents', status: 'demo', persistence: 'memory', authentication: 'none' },
       { id: 'agents.register', method: 'POST', path: '/api/swarm/agents', status: 'demo', ownership_verified: false, authentication: 'none' },
       { id: 'manifest.validate', method: 'POST', path: '/api/swarm/manifest', status: 'demo', authentication: 'none' },
