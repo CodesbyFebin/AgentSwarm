@@ -18,7 +18,7 @@ bun run build
 bun run start
 ```
 
-The Swarm APIs use in-memory state. The optional Prisma schema uses SQLite; to work with it, set `DATABASE_URL` in a local `.env` and run `bun run db:generate`. The provided database scripts can reset or discard data; review them before use.
+The Swarm APIs use in-memory state. The optional Prisma schema now targets PostgreSQL; to work with it, set `DATABASE_URL` in a local `.env` and run `bun run db:generate`. The provided database scripts can reset or discard data; review them before use.
 
 ## Included
 
@@ -31,6 +31,8 @@ The Swarm APIs use in-memory state. The optional Prisma schema uses SQLite; to w
 ## Current limits
 
 This is a prototype, not the Rust platform described in the supplied architecture notes. Registry and ledger state reset when the process restarts. Settlement records do not transfer funds. The zk endpoint fabricates demonstration artifacts; it does not generate or verify cryptographic proofs. Timestamp checks alone do not prevent repeated requests within the accepted window. A2A compliance has not been verified. The supplied Next.js configuration ignores TypeScript build errors.
+
+See [the 2a Edition foundation](docs/2a-edition.md) for PostgreSQL task leasing and budget accounting. The demo endpoints have not yet been cut over to this repository.
 
 No feature merge from the 77 referenced projects has been performed. Their availability, licenses, compatibility, and implementation must be reviewed before integrating code. No license grant for this uploaded source was supplied.
 
