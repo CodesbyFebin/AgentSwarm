@@ -6,6 +6,7 @@ export async function GET() {
     schema_version: 'agentswarm.capabilities/0.1',
     name: 'AgentSwarm.in',
     edition: '2a-foundation',
+    runtime_transport: { type: 'native-http-json', mcp_required: false },
     environment: 'prototype',
     identity: {
       scheme: 'Ed25519',

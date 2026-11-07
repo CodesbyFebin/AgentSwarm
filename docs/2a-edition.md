@@ -103,3 +103,14 @@ These contracts define the desired end state. The current draft remains a founda
 The later two Master Build uploads add a `/dashboard` layout and repeat the earlier simulation snippets. The implementation uses live `/api/capabilities` discovery and the real signed-envelope helper rather than the snippets' seed-hashing crypto or browser-created settlement records. The dashboard reports actual gateway HTTP responses and clearly labels session request history. It does not seed financial balances, pretend a biometric approval occurred, or mark an unverified execution complete.
 
 The additional partial package manifest is not adopted: the existing application dependencies and lockfile are retained. A complete Next.js build and browser QA remain required before release. Gateway origin configuration must match the dashboard's serving origin for signed requests to validate.
+
+
+## Native AgentSwarm runtime: no MCP
+
+The application runtime uses native AgentSwarm HTTP/JSON APIs and signed envelopes. No MCP transport, server, adapter, or tool registry is required for peer communication. Historical research references to MCP describe source ecosystem context rather than a runtime dependency. Capability discovery reports this transport requirement explicitly.
+
+The latest HTML reference is a visual direction, not an operational status source. Do not show PostgreSQL pools online, a Stwo prover active, device locking, biometric approval, or settlement success without corresponding server evidence. The fragment also includes explanatory prose and a TypeScript code fence inside unclosed HTML; it is not a complete executable page to insert into Next.js. The current React dashboard remains the integration point, without CDN script injection or hardcoded seed fields.
+
+The suggested `SHA256(payloadHash | timestamp | privateSeed)` is not adopted as a signature. The existing implementation signs the full domain-separated envelope using Ed25519, retains a non-extractable software key, and includes a random signed nonce. No seed, hash prefix, or self-derived ID is treated as hardware attestation. Matching timestamp-bound requests remain replayable until a state-changing admission path consumes the nonce atomically; this is why the new execution gateway currently refuses admission. Input hashing binds data but supplies no proof that a zkVM executed it.
+
+Git-agentic workspace commitments remain a separate planned resource: define the repository/object format, tree and parent commitments, included paths, program identity, and verified receipt bindings before advertising immutable execution history. Neither a request digest nor a Git hash alone is a STARK validity proof.
