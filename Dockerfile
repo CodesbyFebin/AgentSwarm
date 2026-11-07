@@ -13,15 +13,17 @@ COPY . .
 RUN bunx prisma generate --schema=prisma/schema.prisma
 RUN bun run build
 
-FROM node:24-alpine AS production-runtime
+FROM node:24-bookworm-slim AS production-runtime
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 # Prisma's Linux engine uses OpenSSL at runtime.
-RUN apk add --no-cache openssl \
-    && addgroup -S -g 10001 swarm \
-    && adduser -S -u 10001 -G swarm swarm
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends openssl ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --gid 10001 swarm \
+    && useradd --uid 10001 --gid swarm --no-create-home --shell /usr/sbin/nologin swarm
 COPY --from=builder --chown=swarm:swarm /workspace/.next/standalone ./
 COPY --from=builder --chown=swarm:swarm /workspace/.next/static ./.next/static
 COPY --from=builder --chown=swarm:swarm /workspace/public ./public
