@@ -26,6 +26,11 @@ export async function GET() {
       { id: 'proof.simulate', method: 'POST', path: '/api/swarm/zk-prove', status: 'simulation', cryptographic_execution_proof: false, authentication: 'none' },
     ],
     foundations: {
+      independent_peer_runtime: { status: 'not-implemented' },
+      device_locked_identity: { status: 'not-implemented' },
+      agentic_browser: { status: 'not-implemented' },
+      dedicated_stablecoin_wallet: { status: 'not-implemented' },
+      proof_backed_execution_commits: { status: 'not-implemented' },
       postgresql_tasks: { status: 'repository-only', http_api_available: false },
       budget_reservations: { status: 'repository-only', unit: 'micro-USDC', external_transfers: false },
       stark_receipt_verification: { status: 'not-implemented' },

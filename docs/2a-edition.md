@@ -64,3 +64,35 @@ node --test tests/sovereign/crypto2035.test.mjs
 ```
 
 These cover canonical data validation, valid Ed25519 signatures, tampering, service binding, expiry, and the explicit absence of nonce consumption. Browser compatibility, Next.js route integration, PostgreSQL invariants, concurrent leasing, and proving performance still need environment-backed tests. Notifications are hints rather than an ordered stream: sequence IDs may be allocated before another transaction commits. Consumers must account for commit-order gaps instead of advancing an irreversible cursor from notifications alone.
+
+## Independent peer model
+
+Each agent is an independent peer with its own identity, runtime boundary, wallet, and execution history. The target resources and their trust guarantees are explicit:
+
+| Resource | Target contract | Current status |
+| --- | --- | --- |
+| Agent ID | Stable agent identifier bound to an attested device key, with rotation and revocation records | Not implemented; current WebCrypto keys do not establish device binding |
+| Agentic Browser | Isolated browser profile/runtime per peer; capability-scoped network, storage, and tool permissions | Not implemented |
+| Micro-stablecoin wallet | Dedicated agent wallet with explicit chain, token, decimals, custody, signing policy, and confirmed settlement records | Not implemented; database micro-USDC reservations are internal accounting |
+| Execution commit | Append-only record binding task, parent commitment, peer identity, input/output commitments, program identity, receipt digest, and policy decision | Not implemented |
+| STARK validity proof | Actual receipt verified against a pinned program and expected public inputs before accepting the execution commit | Not implemented; execute2035 rejects completion |
+
+### Identity and runtime
+
+Registration must prove possession of an attested device key and bind that key to the Agent ID. A browser-generated non-extractable key is not evidence of a hardware-bound key. A credential that can synchronize across devices is not sufficient evidence of device locking. Recovery must be an explicit identity transition with a revocation trail rather than an invisible replacement of device keys.
+
+The Agentic Browser is a peer-owned runtime resource, not merely a dashboard tab. Define sandbox boundaries, allowed destinations, permission grants, secret access, per-origin storage, and artifact ownership. Browser actions that affect external services must carry task-scoped authorization and idempotency where supported. The browser session must not independently override wallet or task policy.
+
+### Wallet and accounting
+
+An Agent ID is not a wallet address. Bind each wallet through a chain-specific ownership proof and registry record. Keep signing keys outside application logs, task payloads, and execution commits. Specify chain and token before enabling transfers; an internal ledger capture is never evidence of an on-chain settlement. Enforce spending ceilings and approval policy server-side, and treat submitted, confirmed, reverted, and reorganized transactions separately.
+
+### Proof-backed execution commits
+
+The proposed commit body includes `version`, `task_id`, `agent_id`, `device_key_id`, `parent_commit_hash`, `program_id`, `input_commitment`, `output_commitment`, `receipt_digest`, `policy_digest`, and `wallet_settlement_reference` (nullable). Hash the versioned canonical body; store the agent signature and the verifier's acceptance record separately. A receipt must bind the expected task and agent context as public inputs, not just attest to an unrelated computation. Preserve the actual receipt or a retrievable content-addressed artifact alongside its digest.
+
+Accepting a commit requires current lease ownership, verified identity, authorized policy, an actual verified receipt, and an atomic transaction that records the commit, task completion, internal accounting, and durable event. A missing verifier, mismatched program/input/output, revoked device, expired lease, or reused task completion must not create another commit or charge.
+
+A content hash detects changed bytes but does not alone prevent deletion or rewriting an entire history. Append-only database privileges and constraints protect against application writers; stronger immutability requires an independently verifiable anchor or storage trust boundary. Neither an execution proof nor an append-only log establishes the truth of external browser observations without an explicit oracle/attestation model. STARK validity applies to the specified program's computation, not automatically to external effects, device identity, wallet transfers, or secret handling.
+
+These contracts define the desired end state. The current draft remains a foundation and does not claim independent browser peers, hardware device locking, live wallets, immutable execution commits, or STARK-verified execution.
