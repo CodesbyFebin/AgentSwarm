@@ -11,7 +11,7 @@ bun install --frozen-lockfile
 bun run dev
 ```
 
-Open http://localhost:3000. To build and run the standalone server:
+Open http://localhost:3000 for the original demo or http://localhost:3000/dashboard for capability discovery and the signed 2035 gateway playground. Set `SWARM_SERVICE_ORIGIN` to the exact serving origin to validate signed gateway requests; execution remains blocked until a real proof verifier and admission controls are integrated. To build and run the standalone server:
 
 ```sh
 bun run build

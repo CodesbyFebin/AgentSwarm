@@ -96,3 +96,10 @@ Accepting a commit requires current lease ownership, verified identity, authoriz
 A content hash detects changed bytes but does not alone prevent deletion or rewriting an entire history. Append-only database privileges and constraints protect against application writers; stronger immutability requires an independently verifiable anchor or storage trust boundary. Neither an execution proof nor an append-only log establishes the truth of external browser observations without an explicit oracle/attestation model. STARK validity applies to the specified program's computation, not automatically to external effects, device identity, wallet transfers, or secret handling.
 
 These contracts define the desired end state. The current draft remains a foundation and does not claim independent browser peers, hardware device locking, live wallets, immutable execution commits, or STARK-verified execution.
+
+
+## Master Build dashboard integration
+
+The later two Master Build uploads add a `/dashboard` layout and repeat the earlier simulation snippets. The implementation uses live `/api/capabilities` discovery and the real signed-envelope helper rather than the snippets' seed-hashing crypto or browser-created settlement records. The dashboard reports actual gateway HTTP responses and clearly labels session request history. It does not seed financial balances, pretend a biometric approval occurred, or mark an unverified execution complete.
+
+The additional partial package manifest is not adopted: the existing application dependencies and lockfile are retained. A complete Next.js build and browser QA remain required before release. Gateway origin configuration must match the dashboard's serving origin for signed requests to validate.
