@@ -1,0 +1,15 @@
+[package]
+name = "agentswarm"
+version = "1.0.0"
+edition = "2021"
+description = "AgentSwarm Rust Core: deterministic, verifiable swarm runtime for autonomous agents - registry, signed tasks, hash-chained ledger, fail-closed admission"
+license = "MIT"
+autoexamples = false
+
+[dependencies]
+sha2 = "0.10"
+ed25519-dalek = { version = "2.1", features = ["rand_core"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+hex = "0.4"
+rand = "0.8"

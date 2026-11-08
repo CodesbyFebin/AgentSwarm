@@ -1,0 +1,8 @@
+intent swarm_sum(
+  tasks: TaskList,
+) -> Sealed<Total>
+{
+  let total: Aggregated<Total> = aggregate(tasks, sum(revenue)) @swarm;
+  let escrowId: Escrow = escrow(total) @x402;
+  return seal(total, escrowId);
+}

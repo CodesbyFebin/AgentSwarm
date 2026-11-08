@@ -1,32 +1,92 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// AgentSwarm v6.5 — Prisma migration from Atlas file-JSON DB
+// Migration guide: copy fields from Atlas schemas, keep applyMutation() interface,
+// swap loadDB/saveDB for Prisma, replace sessions.json with Session + httpOnly cookie.
+generator client { provider = "prisma-client-js" }
+datasource db { provider = "postgresql" url = env("DATABASE_URL") }
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
-generator client {
-  provider = "prisma-client-js"
+model Agent {
+  id           String   @id @default(cuid())
+  did          String   @unique
+  name         String
+  capabilities String[] @default([])
+  manifest     Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  tasks        Task[]
+  ledger       LedgerEntry[]
 }
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+model Manifest {
+  id            String @id @default(cuid())
+  agentDid      String
+  name          String
+  capabilities  String[] @default([])
+  maxConcurrent Int
+  version       String
+  hash          String @unique
+  createdAt     DateTime @default(now())
+  agent         Agent? @relation(fields: [agentDid], references: [did])
 }
 
-model User {
+model Task {
+  id          String   @id @default(cuid())
+  intent      String
+  capability  String
+  payload     Json
+  issuerDid   String
+  signature   String
+  nonce       String   @unique
+  status      String   @default("PENDING")
+  createdAt   DateTime @default(now())
+  agent       Agent?   @relation(fields: [issuerDid], references: [did])
+}
+
+model LedgerEntry {
+  id         String   @id @default(cuid())
+  index      Int
+  taskId     String
+  agentDid   String
+  status     String
+  outputHash String
+  prevHash   String
+  hash       String   @unique
+  createdAt  DateTime @default(now())
+  agent      Agent?   @relation(fields: [agentDid], references: [did])
+  @@unique([index])
+}
+
+model Session {
   id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  // httpOnly cookie in Next.js — never expose token in JS
 }
 
-model Post {
+model DeadLetter {
+  id         String   @id @default(cuid())
+  kind       String   // A2A | APPROVAL | BROWSER_JOB | GIT
+  reason     String
+  payloadHash String
+  payload    Json     // canonical payload, NO secrets
+  attempts   Int      @default(0)
+  status     String   @default("PENDING") // PENDING | REPLAYED | DISCARDED
+  replayedToId String?
+  discardReason String?
+  operator   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  @@unique([kind, payloadHash, status])
+}
+
+model GateDEvaluation {
   id        String   @id @default(cuid())
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  authorId  String
+  jobId     String
+  tool      String
+  decision  String   // WOULD_ALLOW | WOULD_DENY
+  reason    String
+  mode      String   @default("shadow") // always shadow, never live
+  signature String   // signed A2A GATE_D_SHADOW_EVALUATED
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
